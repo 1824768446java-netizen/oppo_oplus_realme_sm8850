@@ -258,7 +258,7 @@ jobs:
           if [[ ${{ github.event.inputs.ksu_type }} == "sukisu" || ${{ github.event.inputs.ksu_type }} == "resukisu" ]]; then
             echo "正在配置ReSukiSU（由于SukiSU长期未维护无法正常编译，且ReSukiSU兼容sukisu管理器，故SukiSU源码仓库已重定向为resukisu）..."
             curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/refs/heads/main/kernel/setup.sh" | bash -s main
-            echo 'CONFIG_KSU_FULL_NAME_FORMAT="%TAG_NAME%-%COMMIT_SHA%@cctv18"' >> ./common/arch/arm64/configs/gki_defconfig
+            echo 'CONFIG_KSU_FULL_NAME_FORMAT="%TAG_NAME%-%COMMIT_SHA%@ray"' >> ./common/arch/arm64/configs/gki_defconfig
             cd ./KernelSU
             # 生成自定义版本号（基于提交计数）, 失败时使用 114514
             KSU_VERSION=$(expr $(git rev-list --count main) + 30700 2>/dev/null || echo 114514)
@@ -663,9 +663,9 @@ jobs:
           export OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-size STRIP=llvm-strip
           # 5. 编译前运行官方环境配置脚本
           source "./_setup_env.sh" 2>/dev/null || true
-          # 对齐原厂 /proc/version 内核横幅：必须在 source _setup_env.sh 之后设置，
+          # 自定义 /proc/version 内核横幅：必须在 source _setup_env.sh 之后设置，
           # 否则会被其 Kleaf 默认值 (build-user/build-host + SOURCE_DATE_EPOCH) 覆盖。
-          export KBUILD_BUILD_USER="kleaf"
+          export KBUILD_BUILD_USER="ray"
           export KBUILD_BUILD_HOST="build-host"
           export KBUILD_BUILD_VERSION="1"
           export KBUILD_BUILD_TIMESTAMP="Fri Dec  5 02:05:55 UTC 2025"
