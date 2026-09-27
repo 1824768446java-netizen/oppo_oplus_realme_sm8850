@@ -1,11 +1,11 @@
 name: 6.12.23 欧加真OKI内核快速构建
 
 env:
-  TZ: Asia/Shanghai
+  TZ: UTC
   ANDROID_VERSION: 'android16'
   KERNEL_VERSION: '6.12'
   SUB_VERSION: '23'
-  KERNEL_NAME: 'android16-5-ga8f88ad96df3-ab13929693-4k'
+  KERNEL_NAME: 'android16-5-gb2a876903b49-ab14541642-4k'
   CCACHE_KEY: ccache-ecsv4-6.12.23
 
 on:
@@ -593,10 +593,15 @@ jobs:
           wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/$GITHUB_REF_NAME/lib/libfakestat.so
           wget https://github.com/$GITHUB_REPOSITORY/raw/refs/heads/$GITHUB_REF_NAME/lib/libfaketimeMT.so
           chmod 777 ./*.so
-          export FAKESTAT="2025-05-25 12:00:00"
-          export FAKETIME="@2025-05-25 13:00:00"
+          export FAKESTAT="2025-12-05 02:05:55"
+          export FAKETIME="@2025-12-05 02:05:55"
           echo "FAKESTAT=$FAKESTAT" >> $GITHUB_ENV
           echo "FAKETIME=$FAKETIME" >> $GITHUB_ENV
+          # 对齐原厂 /proc/version 内核横幅: kleaf@build-host + 原厂构建时间
+          export KBUILD_BUILD_USER="kleaf"
+          export KBUILD_BUILD_HOST="build-host"
+          export KBUILD_BUILD_VERSION="1"
+          export KBUILD_BUILD_TIMESTAMP="Fri Dec  5 02:05:55 UTC 2025"
           SO_DIR=$(pwd)
           export PRELOAD_LIBS="$SO_DIR/libfakestat.so $SO_DIR/libfaketimeMT.so"
           export REAL_CLANG_PATH="$WORKDIR/kernel_workspace/clang19/bin/clang"
