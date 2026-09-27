@@ -663,9 +663,9 @@ jobs:
           export OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-size STRIP=llvm-strip
           # 5. 编译前运行官方环境配置脚本
           source "./_setup_env.sh" 2>/dev/null || true
-          # 自定义 /proc/version 内核横幅：必须在 source _setup_env.sh 之后设置，
+          # 对齐原厂 /proc/version 内核横幅：必须在 source _setup_env.sh 之后设置，
           # 否则会被其 Kleaf 默认值 (build-user/build-host + SOURCE_DATE_EPOCH) 覆盖。
-          export KBUILD_BUILD_USER="ray"
+          export KBUILD_BUILD_USER="kleaf"
           export KBUILD_BUILD_HOST="build-host"
           export KBUILD_BUILD_VERSION="1"
           export KBUILD_BUILD_TIMESTAMP="Fri Dec  5 02:05:55 UTC 2025"
