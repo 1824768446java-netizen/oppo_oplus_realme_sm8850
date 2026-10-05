@@ -365,6 +365,18 @@ jobs:
           # 添加对 Mountify (backslashxx/mountify) 模块的支持
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # ===== 关闭 /proc/config.gz（反作弊信息泄露面）=====
+          # /proc/config.gz 会把整份内核 .config 世界可读(0444)地公开，应用实测可读 8119 行，
+          # 其中 23 行是 CONFIG_KSU=y / CONFIG_KSU_SUSFS=y / 全套 SUSFS 特性 / 上游仓库地址，
+          # 等于把"本机装了 KernelSU+SUSFS 及其全部隐藏能力"完整列给反作弊，信息量比"检测到 root"更大。
+          # 只关 IKCONFIG_PROC（不关 IKCONFIG），原因：
+          #   1) IKCONFIG_PROC 才是暴露 /proc/config.gz 的那个选项，关掉后该文件不再存在；
+          #   2) 保留 IKCONFIG=y 则内核仍嵌有 config_data，下方 CONFIG_IP6_NF_NAT 伪装补丁
+          #      (other_patch/config.patch，作用于 kernel/Makefile 的 config_data.gz 生成目标)
+          #      继续正常生效，不会因缺少 config_data 而报错。
+          # 注：procfs 不支持 chcon 改标签(Operation not supported)，运行期只能靠 SELinux deny，
+          #     且挡不住 system_server/init/root 域；编译期关掉才是根治。
+          echo "CONFIG_IKCONFIG_PROC=n" >> ./common/arch/arm64/configs/gki_defconfig
           if [[ "${{ github.event.inputs.lz4kd_enable }}" == "true" ]]; then
             echo "CONFIG_ZSMALLOC=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo "CONFIG_CRYPTO_LZ4HC=y" >> ./common/arch/arm64/configs/gki_defconfig
