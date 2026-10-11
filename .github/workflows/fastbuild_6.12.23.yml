@@ -540,6 +540,30 @@ jobs:
           curl -sSL https://github.com/cctv18/Baseband-guard/raw/master/setup.sh | bash
           sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' security/Kconfig
 
+      - name: Extras - TTL target + qdisc + Unicode Fix (parity with WildKernels v2.2.0-r4)
+        run: |
+          cd kernel_workspace
+          echo "Adding TTL target support..."
+          echo "CONFIG_IP_NF_TARGET_TTL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP6_NF_TARGET_HL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP6_NF_MATCH_HL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "Adding CAKE/PIE qdisc support..."
+          echo "CONFIG_NET_SCH_FQ=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_SCH_FQ_CODEL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_SCH_CAKE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_SCH_PIE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_SCH_FQ_PIE=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "Applying Unicode bypass fix patch..."
+          cd ./common
+          curl -fsSL -o unicode_bypass_fix.patch "https://raw.githubusercontent.com/WildKernels/kernel_patches/main/common/unicode_bypass_fix_6.1%2B.patch"
+          patch -p1 -F 3 < unicode_bypass_fix.patch || true
+          if grep -q "decomposition result is empty" fs/unicode/utf8-norm.c; then
+            echo "Unicode Fix patch applied OK"
+          else
+            echo "::error::Unicode Fix patch did not apply cleanly"
+            exit 1
+          fi
+
       - name: 添加制作名称
         run: |
           cd kernel_workspace
